@@ -1,0 +1,19 @@
+# Normalize line endings across the team.
+# Git stores text as LF in the repo; working tree is LF too on every OS.
+* text=auto eol=lf
+
+# Windows-only scripts must keep CRLF to run correctly
+*.bat  text eol=crlf
+*.cmd  text eol=crlf
+
+# Binary files: never touch their bytes
+*.jar   binary
+*.war   binary
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.ico   binary
+*.woff  binary
+*.woff2 binary
+*.ttf   binary
