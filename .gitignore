@@ -54,6 +54,12 @@ pnpm-debug.log*
 lerna-debug.log*
 
 ######################
+# Design specs (local planning docs, not tracked)
+######################
+docs/superpowers/
+.superpowers/
+
+######################
 # OS files
 ######################
 .DS_Store
