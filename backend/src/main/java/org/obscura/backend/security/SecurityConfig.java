@@ -1,6 +1,5 @@
 package org.obscura.backend.security;
 
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,6 +8,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
@@ -16,6 +17,15 @@ import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+    // Steam login is verified manually in AuthController (Steam only supports
+    // OpenID 2.0, not OAuth2/OIDC, so Spring Security's own login filters don't
+    // apply). This repository is how that manually-built Authentication gets
+    // persisted into the HTTP session so later requests see it.
+    @Bean
+    public SecurityContextRepository securityContextRepository() {
+        return new HttpSessionSecurityContextRepository();
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(
@@ -33,8 +43,6 @@ public class SecurityConfig {
                 .authorizeHttpRequests(request -> request
                         .anyRequest().permitAll()
                 )
-                .oauth2Login(oauth2 -> oauth2
-                        .defaultSuccessUrl(frontendUrl))
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(
                                 new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)

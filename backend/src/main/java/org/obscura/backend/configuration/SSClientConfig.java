@@ -8,9 +8,7 @@ import org.springframework.web.client.RestClient;
 public class SSClientConfig {
 
     @Bean
-    public RestClient omdbRestClient(
-            RestClient.Builder builder) {
-
+    public RestClient restClient(RestClient.Builder builder) {
         return builder.build();
     }
 }
