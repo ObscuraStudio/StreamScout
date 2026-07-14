@@ -201,3 +201,46 @@
   height: 32px;
   border-radius: 50%;
 }
+
+.app-main {
+  padding: 24px;
+}
+
+.library-message {
+  text-align: center;
+  color: #aab;
+  padding: 32px 16px;
+}
+
+.library-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(184px, 1fr));
+  gap: 16px;
+}
+
+.game-card {
+  background: #1b1f27;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.game-card-image {
+  width: 100%;
+  aspect-ratio: 184 / 86;
+  object-fit: cover;
+  display: block;
+}
+
+.game-card-title {
+  padding: 8px 10px 0;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.game-card-playtime {
+  padding: 2px 10px 10px;
+  font-size: 12px;
+  color: #aab;
+}

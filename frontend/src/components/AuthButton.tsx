@@ -1,13 +1,12 @@
-import { loginUrl, logout } from '../api/auth'
-import { useCurrentUser } from '../hooks/useCurrentUser'
+import { loginUrl, logout, type User } from '../api/auth'
 
-function AuthButton() {
-  const { user, loading, setUser } = useCurrentUser()
-
-  if (loading) {
-    return null
-  }
-
+function AuthButton({
+  user,
+  setUser,
+}: {
+  user: User | null
+  setUser: (user: User | null) => void
+}) {
   if (!user) {
     return (
       <a href={loginUrl()} className="auth-button">
