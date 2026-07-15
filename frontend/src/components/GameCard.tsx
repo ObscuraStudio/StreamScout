@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import type { Game } from '../api/library'
 
 const PLACEHOLDER_IMAGE =
   'data:image/svg+xml;utf8,' +
@@ -7,11 +6,33 @@ const PLACEHOLDER_IMAGE =
     '<svg xmlns="http://www.w3.org/2000/svg" width="184" height="86"><rect width="184" height="86" fill="#2a2f3a"/></svg>',
   )
 
-function GameCard({ game }: { game: Game }) {
+type GameCardProps = {
+  game: {
+    appId: number
+    name: string
+    imageUrl: string
+    playtimeHours?: number
+  }
+  isFavourite?: boolean
+  onToggleFavourite?: () => void
+}
+
+function GameCard({ game, isFavourite, onToggleFavourite }: GameCardProps) {
   const [imageSrc, setImageSrc] = useState(game.imageUrl)
 
   return (
     <div className="game-card">
+      {onToggleFavourite && (
+        <button
+          type="button"
+          className="game-card-favourite"
+          aria-pressed={isFavourite}
+          aria-label={isFavourite ? `Unfavourite ${game.name}` : `Favourite ${game.name}`}
+          onClick={onToggleFavourite}
+        >
+          {isFavourite ? '★' : '☆'}
+        </button>
+      )}
       <img
         src={imageSrc}
         alt={game.name}
@@ -19,7 +40,9 @@ function GameCard({ game }: { game: Game }) {
         onError={() => setImageSrc(PLACEHOLDER_IMAGE)}
       />
       <div className="game-card-title">{game.name}</div>
-      <div className="game-card-playtime">{game.playtimeHours} h played</div>
+      {game.playtimeHours !== undefined && (
+        <div className="game-card-playtime">{game.playtimeHours} h played</div>
+      )}
     </div>
   )
 }

@@ -1,14 +1,9 @@
+import { readCsrfToken } from './csrf'
+
 export type User = {
   steamId: string
   displayName: string
   avatarUrl: string | null
-}
-
-function readCookie(name: string): string | null {
-  const match = document.cookie
-    .split('; ')
-    .find((row) => row.startsWith(`${name}=`))
-  return match ? decodeURIComponent(match.split('=')[1]) : null
 }
 
 export async function getCurrentUser(): Promise<User | null> {
@@ -23,7 +18,7 @@ export async function getCurrentUser(): Promise<User | null> {
 }
 
 export async function logout(): Promise<void> {
-  const csrfToken = readCookie('XSRF-TOKEN')
+  const csrfToken = readCsrfToken()
   const response = await fetch('/logout', {
     method: 'POST',
     headers: csrfToken ? { 'X-XSRF-TOKEN': csrfToken } : undefined,
