@@ -244,3 +244,34 @@
   font-size: 12px;
   color: #aab;
 }
+
+.favourites-section {
+  margin-bottom: 32px;
+}
+
+.section-heading {
+  font-size: 18px;
+  margin: 0 0 12px;
+}
+
+.game-card {
+  position: relative;
+}
+
+.game-card-favourite {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: rgba(0, 0, 0, 0.55);
+  border: none;
+  border-radius: 4px;
+  color: #ffd54a;
+  font-size: 18px;
+  line-height: 1;
+  padding: 4px 6px;
+  cursor: pointer;
+}
+
+.game-card-favourite:hover {
+  background: rgba(0, 0, 0, 0.75);
+}
