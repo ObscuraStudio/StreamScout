@@ -1,4 +1,5 @@
 import GameCard from './GameCard'
+import FavouriteStreams from './FavouriteStreams'
 import { useLibrary } from '../hooks/useLibrary'
 import { useFavourites } from '../hooks/useFavourites'
 
@@ -17,12 +18,14 @@ function LibraryGrid({ enabled }: { enabled: boolean }) {
     favouritesContent = (
       <div className="library-grid">
         {favourites.map((fav) => (
-          <GameCard
-            key={fav.appId}
-            game={fav}
-            isFavourite={true}
-            onToggleFavourite={() => toggle(fav)}
-          />
+          <div key={fav.appId} className="favourite-entry">
+            <GameCard
+              game={fav}
+              isFavourite={true}
+              onToggleFavourite={() => toggle(fav)}
+            />
+            <FavouriteStreams appId={fav.appId} />
+          </div>
         ))}
       </div>
     )
