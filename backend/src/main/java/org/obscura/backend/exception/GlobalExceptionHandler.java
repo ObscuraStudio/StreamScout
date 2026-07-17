@@ -33,6 +33,13 @@ public class GlobalExceptionHandler {
         return new ErrorResponse(ex.getMessage(), LocalDateTime.now());
     }
 
+    @ExceptionHandler(TwitchApiException.class)
+    @ResponseStatus(HttpStatus.BAD_GATEWAY)
+    public ErrorResponse handleTwitchApi(TwitchApiException ex) {
+        log.warn("Twitch API call failed: {}", ex.getMessage());
+        return new ErrorResponse(ex.getMessage(), LocalDateTime.now());
+    }
+
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleUnexpected(Exception ex) {
