@@ -15,20 +15,36 @@ type GameCardProps = {
   }
   isFavourite?: boolean
   onToggleFavourite?: () => void
+  onClick?: () => void
+  large?: boolean
 }
 
-function GameCard({ game, isFavourite, onToggleFavourite }: GameCardProps) {
+function GameCard({ game, isFavourite, onToggleFavourite, onClick, large }: GameCardProps) {
   const [imageSrc, setImageSrc] = useState(game.imageUrl)
 
   return (
-    <div className="game-card">
+    <div
+      className={large ? 'game-card game-card-large' : 'game-card'}
+      onClick={onClick}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={(event) => {
+        if (onClick && (event.key === 'Enter' || event.key === ' ')) {
+          event.preventDefault()
+          onClick()
+        }
+      }}
+    >
       {onToggleFavourite && (
         <button
           type="button"
           className="game-card-favourite"
           aria-pressed={isFavourite}
           aria-label={isFavourite ? `Unfavourite ${game.name}` : `Favourite ${game.name}`}
-          onClick={onToggleFavourite}
+          onClick={(event) => {
+            event.stopPropagation()
+            onToggleFavourite()
+          }}
         >
           {isFavourite ? '★' : '☆'}
         </button>

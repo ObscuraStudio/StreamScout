@@ -1,36 +1,34 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { getStreams, type Stream } from '../api/streams'
 
-type StreamsStatus = 'idle' | 'loading' | 'loaded' | 'error'
+type StreamsStatus = 'loading' | 'loaded' | 'error'
 
-export function useGameStreams(appId: number) {
-  const [status, setStatus] = useState<StreamsStatus>('idle')
+export function useGameStreams(gameName: string) {
+  const [status, setStatus] = useState<StreamsStatus>('loading')
   const [streams, setStreams] = useState<Stream[]>([])
-  const [expanded, setExpanded] = useState(false)
 
-  const toggle = () => {
-    if (expanded) {
-      setExpanded(false)
-      return
-    }
-
-    setExpanded(true)
-
-    if (status === 'loaded') {
-      return
-    }
-
+  useEffect(() => {
+    let cancelled = false
     setStatus('loading')
-    getStreams(appId)
+
+    getStreams(gameName)
       .then((loaded) => {
-        setStreams(loaded)
-        setStatus('loaded')
+        if (!cancelled) {
+          setStreams(loaded)
+          setStatus('loaded')
+        }
       })
       .catch((error: unknown) => {
-        console.error(error)
-        setStatus('error')
+        if (!cancelled) {
+          console.error(error)
+          setStatus('error')
+        }
       })
-  }
 
-  return { status, streams, expanded, toggle }
+    return () => {
+      cancelled = true
+    }
+  }, [gameName])
+
+  return { status, streams }
 }

@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -17,33 +18,33 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(GameNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleGameNotFound(GameNotFoundException ex) {
-        return new ErrorResponse(ex.getMessage(), LocalDateTime.now());
+        return new ErrorResponse(ex.getMessage(), LocalDateTime.now(ZoneId.systemDefault()));
     }
 
     @ExceptionHandler(StreamNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleStreamNotFound(GameNotFoundException ex) {
-        return new ErrorResponse(ex.getMessage(), LocalDateTime.now());
+        return new ErrorResponse(ex.getMessage(), LocalDateTime.now(ZoneId.systemDefault()));
     }
 
     @ExceptionHandler(SteamApiException.class)
     @ResponseStatus(HttpStatus.BAD_GATEWAY)
     public ErrorResponse handleSteamApi(SteamApiException ex) {
         log.warn("Steam API call failed: {}", ex.getMessage());
-        return new ErrorResponse(ex.getMessage(), LocalDateTime.now());
+        return new ErrorResponse(ex.getMessage(), LocalDateTime.now(ZoneId.systemDefault()));
     }
 
     @ExceptionHandler(TwitchApiException.class)
     @ResponseStatus(HttpStatus.BAD_GATEWAY)
     public ErrorResponse handleTwitchApi(TwitchApiException ex) {
         log.warn("Twitch API call failed: {}", ex.getMessage());
-        return new ErrorResponse(ex.getMessage(), LocalDateTime.now());
+        return new ErrorResponse(ex.getMessage(), LocalDateTime.now(ZoneId.systemDefault()));
     }
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleUnexpected(Exception ex) {
         log.error("Unexpected error", ex);
-        return new ErrorResponse("An unexpected error occurred", LocalDateTime.now());
+        return new ErrorResponse("An unexpected error occurred", LocalDateTime.now(ZoneId.systemDefault()));
     }
 }

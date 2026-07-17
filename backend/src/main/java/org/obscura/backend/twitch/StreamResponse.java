@@ -1,6 +1,4 @@
-package org.obscura.backend.favourite;
-
-import org.obscura.backend.twitch.TwitchStream;
+package org.obscura.backend.twitch;
 
 public record StreamResponse(
         String streamerName,

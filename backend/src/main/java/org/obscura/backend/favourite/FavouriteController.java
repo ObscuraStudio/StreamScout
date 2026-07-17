@@ -1,6 +1,5 @@
 package org.obscura.backend.favourite;
 
-import org.obscura.backend.twitch.TwitchClient;
 import org.obscura.backend.user.Favourite;
 import org.obscura.backend.user.User;
 import org.obscura.backend.user.UserRepository;
@@ -15,17 +14,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 public class FavouriteController {
 
     private final UserRepository userRepository;
-    private final TwitchClient twitchClient;
 
-    public FavouriteController(UserRepository userRepository, TwitchClient twitchClient) {
+    public FavouriteController(UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.twitchClient = twitchClient;
     }
 
     @GetMapping("/api/favourites")
@@ -63,27 +59,6 @@ public class FavouriteController {
         user.removeFavourite(appId);
         userRepository.save(user);
         return ResponseEntity.ok().build();
-    }
-
-    @GetMapping("/api/favourites/{appId}/streams")
-    public ResponseEntity<List<StreamResponse>> streams(Authentication authentication, @PathVariable int appId) {
-        String steamId = authenticatedSteamId(authentication);
-        if (steamId == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-        User user = userRepository.findBySteamId(steamId).orElseThrow();
-
-        Optional<Favourite> favourite = user.getFavourites().stream()
-                .filter(f -> f.appId() == appId)
-                .findFirst();
-        if (favourite.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-
-        List<StreamResponse> body = twitchClient.getLiveStreams(favourite.get().name()).stream()
-                .map(StreamResponse::fromTwitchStream)
-                .toList();
-        return ResponseEntity.ok(body);
     }
 
     private static String authenticatedSteamId(Authentication authentication) {

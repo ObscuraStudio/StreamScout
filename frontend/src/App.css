@@ -186,8 +186,17 @@
 .app-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   padding: 16px 24px;
+  position: relative;
+}
+
+.app-header h1 {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
 }
 
 .auth-user {
@@ -237,6 +246,7 @@
   padding: 8px 10px 0;
   font-weight: 600;
   font-size: 14px;
+  text-align: center;
 }
 
 .game-card-playtime {
@@ -250,12 +260,14 @@
 }
 
 .section-heading {
-  font-size: 18px;
+  font-size: 22px;
   margin: 0 0 12px;
+  text-align: left;
 }
 
 .game-card {
   position: relative;
+  cursor: pointer;
 }
 
 .game-card-favourite {
@@ -276,36 +288,16 @@
   background: rgba(0, 0, 0, 0.75);
 }
 
-.favourite-entry {
-  display: flex;
-  flex-direction: column;
-}
-
-.streams-toggle {
-  margin-top: 8px;
-  background: #2a2f3a;
-  border: none;
-  border-radius: 4px;
-  color: #e6e6e6;
-  padding: 6px 10px;
-  font-size: 12px;
-  cursor: pointer;
-}
-
-.streams-toggle:hover {
-  background: #3a4150;
-}
-
 .streams-message {
   color: #aab;
   font-size: 12px;
   padding: 8px 0;
 }
 
-.streams-grid {
+.streams-grid-detail {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
   margin-top: 8px;
 }
 
@@ -342,4 +334,58 @@
   transform: scale(1.04);
   background-color: color-mix(in srgb, #1b1f27 80%, var(--accent) 20%);
   box-shadow: 0 0 0 2px var(--accent-border);
+}
+
+.game-detail {
+  text-align: center;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.back-to-library {
+  display: inline-block;
+  margin-bottom: 16px;
+  background: #2a2f3a;
+  border: none;
+  border-radius: 4px;
+  color: #e6e6e6;
+  text-decoration: none;
+  padding: 8px 14px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.back-to-library:hover {
+  background: #3a4150;
+}
+
+.game-detail-header {
+  max-width: 320px;
+  margin: 0 auto 24px;
+}
+
+.game-card-large:hover {
+  transform: none;
+  background-color: #1b1f27;
+  box-shadow: none;
+}
+
+.game-card-large .game-card-image {
+  aspect-ratio: 320 / 150;
+}
+
+.game-card-large .game-card-title {
+  font-size: 20px;
+  padding-top: 12px;
+}
+
+.game-card-large .game-card-playtime {
+  font-size: 14px;
+}
+
+.stats-placeholder {
+  background: #1b1f27;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 24px;
 }

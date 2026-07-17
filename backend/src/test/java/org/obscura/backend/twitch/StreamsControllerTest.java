@@ -1,13 +1,9 @@
-package org.obscura.backend.favourite;
+package org.obscura.backend.twitch;
 
 import org.junit.jupiter.api.Test;
 import org.obscura.backend.steam.SteamOpenIdClient;
 import org.obscura.backend.steam.SteamWebApiClient;
-import org.obscura.backend.twitch.TwitchClient;
-import org.obscura.backend.twitch.TwitchStream;
-import org.obscura.backend.user.Favourite;
 import org.obscura.backend.user.User;
-import org.obscura.backend.user.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -17,7 +13,6 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -26,13 +21,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
-class FavouriteControllerStreamsTest {
+class StreamsControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-
-    @MockitoBean
-    private UserRepository userRepository;
 
     @MockitoBean
     private TwitchClient twitchClient;
@@ -50,32 +42,19 @@ class FavouriteControllerStreamsTest {
 
     @Test
     void streams_returnsUnauthorized_whenNoAuthenticatedUser() throws Exception {
-        mockMvc.perform(get("/api/favourites/440/streams"))
+        mockMvc.perform(get("/api/streams").param("name", "Team Fortress 2"))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
-    void streams_returnsNotFound_whenAppIdIsNotFavourited() throws Exception {
+    void streams_returnsStreams_forAnyGameName_notJustFavourites() throws Exception {
         User principal = new User("76561198012345678", "Name", null);
-        User stored = new User("76561198012345678", "Name", null);
-        when(userRepository.findBySteamId("76561198012345678")).thenReturn(Optional.of(stored));
-
-        mockMvc.perform(get("/api/favourites/440/streams")
-                        .with(SecurityMockMvcRequestPostProcessors.authentication(auth(principal))))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    void streams_returnsStreams_whenFavouritedAndTwitchHasResults() throws Exception {
-        User principal = new User("76561198012345678", "Name", null);
-        User stored = new User("76561198012345678", "Name", null);
-        stored.addFavourite(new Favourite(440, "Team Fortress 2", "https://img/440"));
-        when(userRepository.findBySteamId("76561198012345678")).thenReturn(Optional.of(stored));
         when(twitchClient.getLiveStreams("Team Fortress 2")).thenReturn(List.of(
                 new TwitchStream("SomeStreamer", "somestreamer", "Playing TF2", 42,
                         "https://img/preview-320x180.jpg")));
 
-        mockMvc.perform(get("/api/favourites/440/streams")
+        mockMvc.perform(get("/api/streams")
+                        .param("name", "Team Fortress 2")
                         .with(SecurityMockMvcRequestPostProcessors.authentication(auth(principal))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].streamerName").value("SomeStreamer"))
@@ -86,14 +65,12 @@ class FavouriteControllerStreamsTest {
     }
 
     @Test
-    void streams_returnsEmptyArray_whenFavouritedButTwitchHasNoStreams() throws Exception {
+    void streams_returnsEmptyArray_whenTwitchHasNoStreams() throws Exception {
         User principal = new User("76561198012345678", "Name", null);
-        User stored = new User("76561198012345678", "Name", null);
-        stored.addFavourite(new Favourite(440, "Team Fortress 2", "https://img/440"));
-        when(userRepository.findBySteamId("76561198012345678")).thenReturn(Optional.of(stored));
-        when(twitchClient.getLiveStreams("Team Fortress 2")).thenReturn(List.of());
+        when(twitchClient.getLiveStreams("Some Obscure Game")).thenReturn(List.of());
 
-        mockMvc.perform(get("/api/favourites/440/streams")
+        mockMvc.perform(get("/api/streams")
+                        .param("name", "Some Obscure Game")
                         .with(SecurityMockMvcRequestPostProcessors.authentication(auth(principal))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())

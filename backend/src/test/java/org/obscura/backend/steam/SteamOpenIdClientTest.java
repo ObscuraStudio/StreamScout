@@ -33,10 +33,10 @@ class SteamOpenIdClientTest {
                 "http://localhost:8080",
                 "http://localhost:8080/api/auth/steam/callback");
 
-        assertThat(url).startsWith("https://steamcommunity.com/openid/login?");
-        assertThat(url).contains("openid.mode=checkid_setup");
-        assertThat(url).contains("openid.return_to=http%3A%2F%2Flocalhost%3A8080%2Fapi%2Fauth%2Fsteam%2Fcallback");
-        assertThat(url).contains("openid.realm=http%3A%2F%2Flocalhost%3A8080");
+        assertThat(url).startsWith("https://steamcommunity.com/openid/login?")
+                .contains("openid.mode=checkid_setup")
+                .contains("openid.return_to=http%3A%2F%2Flocalhost%3A8080%2Fapi%2Fauth%2Fsteam%2Fcallback")
+                .contains("openid.realm=http%3A%2F%2Flocalhost%3A8080");
     }
 
     @Test
