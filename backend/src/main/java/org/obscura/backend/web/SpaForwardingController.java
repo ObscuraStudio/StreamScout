@@ -1,7 +1,7 @@
 package org.obscura.backend.web;
 
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 
 /**
  * Client-side routes (added for the game detail page) don't correspond to a
@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 public class SpaForwardingController {
 
-    @RequestMapping("/games/{appId}")
+    @GetMapping("/games/*")
     public String gameDetail() {
         return "forward:/index.html";
     }
