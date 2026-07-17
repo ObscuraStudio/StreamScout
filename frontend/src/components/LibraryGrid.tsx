@@ -1,9 +1,10 @@
+import { useNavigate } from 'react-router-dom'
 import GameCard from './GameCard'
-import FavouriteStreams from './FavouriteStreams'
 import { useLibrary } from '../hooks/useLibrary'
 import { useFavourites } from '../hooks/useFavourites'
 
 function LibraryGrid({ enabled }: { enabled: boolean }) {
+  const navigate = useNavigate()
   const { games, status } = useLibrary(enabled)
   const { favourites, favouriteIds, status: favStatus, toggle } = useFavourites(enabled)
 
@@ -15,17 +16,19 @@ function LibraryGrid({ enabled }: { enabled: boolean }) {
       <p className="library-message">No favourites yet — tap the star on a game to add one.</p>
     )
   } else {
+    // Favourite snapshots don't carry playtime (it's live data, not frozen at
+    // favourite-time) — fill it in from the library entry when we have one.
+    const libraryGamesByAppId = new Map(games.map((game) => [game.appId, game]))
     favouritesContent = (
       <div className="library-grid">
         {favourites.map((fav) => (
-          <div key={fav.appId} className="favourite-entry">
-            <GameCard
-              game={fav}
-              isFavourite={true}
-              onToggleFavourite={() => toggle(fav)}
-            />
-            <FavouriteStreams appId={fav.appId} />
-          </div>
+          <GameCard
+            key={fav.appId}
+            game={{ ...fav, playtimeHours: libraryGamesByAppId.get(fav.appId)?.playtimeHours }}
+            isFavourite={true}
+            onToggleFavourite={() => toggle(fav)}
+            onClick={() => navigate(`/games/${fav.appId}`)}
+          />
         ))}
       </div>
     )
@@ -53,6 +56,7 @@ function LibraryGrid({ enabled }: { enabled: boolean }) {
             onToggleFavourite={() =>
               toggle({ appId: game.appId, name: game.name, imageUrl: game.imageUrl })
             }
+            onClick={() => navigate(`/games/${game.appId}`)}
           />
         ))}
       </div>
