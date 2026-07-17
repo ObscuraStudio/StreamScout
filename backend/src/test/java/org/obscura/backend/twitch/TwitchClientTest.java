@@ -2,7 +2,7 @@ package org.obscura.backend.twitch;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+
 import org.obscura.backend.exception.TwitchApiException;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
@@ -12,6 +12,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.header;
@@ -33,7 +34,7 @@ class TwitchClientTest {
     void setUp() {
         RestClient.Builder builder = RestClient.builder();
         mockServer = MockRestServiceServer.bindTo(builder).build();
-        authClient = Mockito.mock(TwitchAuthClient.class);
+        authClient = mock(TwitchAuthClient.class);
         when(authClient.getAppAccessToken()).thenReturn("test-token");
         client = new TwitchClient(builder.build(), authClient, "test-client-id");
     }
