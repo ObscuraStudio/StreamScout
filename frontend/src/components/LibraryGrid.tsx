@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import GameCard from './GameCard'
 import { useLibrary } from '../hooks/useLibrary'
@@ -7,6 +8,7 @@ function LibraryGrid({ enabled }: { enabled: boolean }) {
   const navigate = useNavigate()
   const { games, status } = useLibrary(enabled)
   const { favourites, favouriteIds, status: favStatus, toggle } = useFavourites(enabled)
+  const [query, setQuery] = useState('')
 
   let favouritesContent
   if (favStatus === 'error') {
@@ -34,6 +36,10 @@ function LibraryGrid({ enabled }: { enabled: boolean }) {
     )
   }
 
+  const filteredGames = games.filter((game) =>
+    game.name.toLowerCase().includes(query.toLowerCase())
+  )
+
   let libraryContent
   if (status === 'loading') {
     libraryContent = <p className="library-message">Loading your library…</p>
@@ -45,10 +51,12 @@ function LibraryGrid({ enabled }: { enabled: boolean }) {
         No games found — make sure your Steam profile and game details are set to Public.
       </p>
     )
+  } else if (filteredGames.length === 0) {
+    libraryContent = <p className="library-message">No games match "{query}".</p>
   } else {
     libraryContent = (
       <div className="library-grid">
-        {games.map((game) => (
+        {filteredGames.map((game) => (
           <GameCard
             key={game.appId}
             game={game}
@@ -69,6 +77,13 @@ function LibraryGrid({ enabled }: { enabled: boolean }) {
         <h2 className="section-heading">Favourites</h2>
         {favouritesContent}
       </section>
+      <input
+        type="text"
+        className="library-search"
+        placeholder="Search your library..."
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+      />
       <section className="library-section">
         <h2 className="section-heading">Library</h2>
         {libraryContent}
