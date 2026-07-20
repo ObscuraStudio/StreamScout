@@ -1,6 +1,7 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import './App.css'
 import AuthButton from './components/AuthButton'
+import LoginButton from './components/LoginButton'
 import LibraryGrid from './components/LibraryGrid'
 import GameDetailPage from './components/GameDetailPage'
 import { useCurrentUser } from './hooks/useCurrentUser'
@@ -11,10 +12,11 @@ function App() {
   return (
     <BrowserRouter>
       <header className="app-header">
-        <h1>StreamScout</h1>
-        {!loading && <AuthButton user={user} setUser={setUser} />}
+        <img src="/StreamScoutLogo.png" alt="StreamScout" className="app-logo" />
+        {!loading && user && <AuthButton user={user} setUser={setUser} />}
       </header>
       <main className="app-main">
+        {!loading && !user && <LoginButton />}
         {!loading && user && (
           <Routes>
             <Route path="/" element={<LibraryGrid enabled={true} />} />

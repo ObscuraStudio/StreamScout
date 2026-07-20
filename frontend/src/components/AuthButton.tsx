@@ -1,20 +1,12 @@
-import { loginUrl, logout, type User } from '../api/auth'
+import { logout, type User } from '../api/auth'
 
 function AuthButton({
   user,
   setUser,
 }: {
-  user: User | null
+  user: User
   setUser: (user: User | null) => void
 }) {
-  if (!user) {
-    return (
-      <a href={loginUrl()} className="auth-button">
-        Login with Steam
-      </a>
-    )
-  }
-
   const handleLogout = () => {
     logout()
       .then(() => setUser(null))
