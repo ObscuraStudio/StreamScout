@@ -11,7 +11,9 @@ function LibraryGrid({ enabled }: { enabled: boolean }) {
   const [query, setQuery] = useState('')
 
   let favouritesContent
-  if (favStatus === 'error') {
+  if (favStatus === 'loading') {
+    favouritesContent = <p className="library-message">Loading your favourites…</p>
+  } else if (favStatus === 'error') {
     favouritesContent = <p className="library-message">Couldn't load favourites.</p>
   } else if (favourites.length === 0) {
     favouritesContent = (
