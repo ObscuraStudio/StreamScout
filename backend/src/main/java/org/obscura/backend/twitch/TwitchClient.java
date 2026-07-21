@@ -13,7 +13,8 @@ import java.util.List;
 public class TwitchClient {
 
     private static final Logger log = LoggerFactory.getLogger(TwitchClient.class);
-    private static final String GAMES_URL = "https://api.twitch.tv/helix/games?name={name}";
+    private static final String SEARCH_CATEGORIES_URL =
+            "https://api.twitch.tv/helix/search/categories?query={name}&first=1";
     private static final String STREAMS_URL = "https://api.twitch.tv/helix/streams?game_id={gameId}&first=6";
 
     private final RestClient restClient;
@@ -43,8 +44,20 @@ public class TwitchClient {
     }
 
     private String resolveGameId(String gameName) {
+        String normalized = GameNameNormalizer.stripEditionSuffix(gameName);
+        if (!normalized.equals(gameName)) {
+            String gameId = fetchGameId(normalized);
+            if (gameId != null) {
+                return gameId;
+            }
+            return fetchGameId(gameName);
+        }
+        return fetchGameId(gameName);
+    }
+
+    private String fetchGameId(String query) {
         GamesResponse response = restClient.get()
-                .uri(GAMES_URL, gameName)
+                .uri(SEARCH_CATEGORIES_URL, query)
                 .header("Authorization", "Bearer " + authClient.getAppAccessToken())
                 .header("Client-Id", clientId)
                 .retrieve()

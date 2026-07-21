@@ -23,7 +23,8 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 
 class TwitchClientTest {
 
-    private static final String GAMES_URL = "https://api.twitch.tv/helix/games?name={name}";
+    private static final String SEARCH_CATEGORIES_URL =
+            "https://api.twitch.tv/helix/search/categories?query={name}&first=1";
     private static final String STREAMS_URL = "https://api.twitch.tv/helix/streams?game_id={gameId}&first=6";
 
     private MockRestServiceServer mockServer;
@@ -41,12 +42,12 @@ class TwitchClientTest {
 
     @Test
     void getLiveStreams_returnsParsedStreams_withThumbnailPlaceholdersSubstituted() {
-        mockServer.expect(requestToUriTemplate(GAMES_URL, "Team Fortress 2"))
+        mockServer.expect(requestToUriTemplate(SEARCH_CATEGORIES_URL, "Team Fortress 2"))
                 .andExpect(method(GET))
                 .andExpect(header("Authorization", "Bearer test-token"))
                 .andExpect(header("Client-Id", "test-client-id"))
                 .andRespond(withSuccess("""
-                        {"data": [{"id": "1234", "name": "Team Fortress 2"}]}
+                        {"data": [{"id": "1234", "name": "Team Fortress 2", "box_art_url": "https://example.com/box.jpg"}]}
                         """, MediaType.APPLICATION_JSON));
         mockServer.expect(requestToUriTemplate(STREAMS_URL, "1234"))
                 .andExpect(method(GET))
@@ -76,7 +77,7 @@ class TwitchClientTest {
 
     @Test
     void getLiveStreams_returnsEmptyList_whenNoGameCategoryMatches() {
-        mockServer.expect(requestToUriTemplate(GAMES_URL, "Some Obscure Game"))
+        mockServer.expect(requestToUriTemplate(SEARCH_CATEGORIES_URL, "Some Obscure Game"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess("""
                         {"data": []}
@@ -89,10 +90,10 @@ class TwitchClientTest {
 
     @Test
     void getLiveStreams_returnsEmptyList_whenCategoryHasNoLiveStreams() {
-        mockServer.expect(requestToUriTemplate(GAMES_URL, "Team Fortress 2"))
+        mockServer.expect(requestToUriTemplate(SEARCH_CATEGORIES_URL, "Team Fortress 2"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess("""
-                        {"data": [{"id": "1234", "name": "Team Fortress 2"}]}
+                        {"data": [{"id": "1234", "name": "Team Fortress 2", "box_art_url": "https://example.com/box.jpg"}]}
                         """, MediaType.APPLICATION_JSON));
         mockServer.expect(requestToUriTemplate(STREAMS_URL, "1234"))
                 .andExpect(method(GET))
@@ -107,10 +108,51 @@ class TwitchClientTest {
 
     @Test
     void getLiveStreams_throwsTwitchApiException_whenGameLookupFails() {
-        mockServer.expect(requestToUriTemplate(GAMES_URL, "Team Fortress 2"))
+        mockServer.expect(requestToUriTemplate(SEARCH_CATEGORIES_URL, "Team Fortress 2"))
                 .andExpect(method(GET))
                 .andRespond(withServerError());
 
         assertThrows(TwitchApiException.class, () -> client.getLiveStreams("Team Fortress 2"));
+    }
+
+    @Test
+    void getLiveStreams_stripsEditionSuffix_andResolvesOnFirstAttempt() {
+        mockServer.expect(requestToUriTemplate(SEARCH_CATEGORIES_URL, "FINAL FANTASY XV"))
+                .andExpect(method(GET))
+                .andRespond(withSuccess("""
+                        {"data": [{"id": "5678", "name": "FINAL FANTASY XV", "box_art_url": "https://example.com/box.jpg"}]}
+                        """, MediaType.APPLICATION_JSON));
+        mockServer.expect(requestToUriTemplate(STREAMS_URL, "5678"))
+                .andExpect(method(GET))
+                .andRespond(withSuccess("""
+                        {"data": []}
+                        """, MediaType.APPLICATION_JSON));
+
+        List<TwitchStream> streams = client.getLiveStreams("FINAL FANTASY XV WINDOWS EDITION");
+
+        assertThat(streams).isEmpty();
+    }
+
+    @Test
+    void getLiveStreams_fallsBackToOriginalName_whenStrippedNameHasNoMatch() {
+        mockServer.expect(requestToUriTemplate(SEARCH_CATEGORIES_URL, "FINAL FANTASY XV"))
+                .andExpect(method(GET))
+                .andRespond(withSuccess("""
+                        {"data": []}
+                        """, MediaType.APPLICATION_JSON));
+        mockServer.expect(requestToUriTemplate(SEARCH_CATEGORIES_URL, "FINAL FANTASY XV WINDOWS EDITION"))
+                .andExpect(method(GET))
+                .andRespond(withSuccess("""
+                        {"data": [{"id": "9999", "name": "FINAL FANTASY XV WINDOWS EDITION", "box_art_url": "https://example.com/box.jpg"}]}
+                        """, MediaType.APPLICATION_JSON));
+        mockServer.expect(requestToUriTemplate(STREAMS_URL, "9999"))
+                .andExpect(method(GET))
+                .andRespond(withSuccess("""
+                        {"data": []}
+                        """, MediaType.APPLICATION_JSON));
+
+        List<TwitchStream> streams = client.getLiveStreams("FINAL FANTASY XV WINDOWS EDITION");
+
+        assertThat(streams).isEmpty();
     }
 }
