@@ -87,8 +87,8 @@ class SteamWebApiClientAchievementsTest {
 
         AchievementSummary summary = client.getAchievementSummary("76561198012345678", 12345);
 
-        assertThat(summary.achieved()).isEqualTo(0);
-        assertThat(summary.total()).isEqualTo(0);
+        assertThat(summary.achieved()).isZero();
+        assertThat(summary.total()).isZero();
         assertThat(summary.profilePrivate()).isFalse();
     }
 
@@ -103,8 +103,8 @@ class SteamWebApiClientAchievementsTest {
 
         AchievementSummary summary = client.getAchievementSummary("76561198012345678", 440);
 
-        assertThat(summary.achieved()).isEqualTo(0);
-        assertThat(summary.total()).isEqualTo(0);
+        assertThat(summary.achieved()).isZero();
+        assertThat(summary.total()).isZero();
         assertThat(summary.profilePrivate()).isFalse();
     }
 
@@ -135,7 +135,7 @@ class SteamWebApiClientAchievementsTest {
 
         AchievementSummary summary = client.getAchievementSummary("76561198012345678", 1245620);
 
-        assertThat(summary.achieved()).isEqualTo(0);
+        assertThat(summary.achieved()).isZero();
         assertThat(summary.total()).isEqualTo(2);
         assertThat(summary.profilePrivate()).isTrue();
     }

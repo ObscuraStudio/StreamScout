@@ -89,7 +89,7 @@ public class SteamWebApiClient {
         try {
             int achieved = fetchAchievedCount(steamId, appId);
             return new AchievementSummary(achieved, total, false);
-        } catch (HttpClientErrorException.Forbidden e) {
+        } catch (HttpClientErrorException.Forbidden _) {
             log.warn("Profile not public for achievements: steamId={} appId={}", steamId, appId);
             return new AchievementSummary(0, total, true);
         } catch (Exception e) {

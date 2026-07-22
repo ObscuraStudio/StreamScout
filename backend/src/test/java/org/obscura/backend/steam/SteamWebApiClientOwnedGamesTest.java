@@ -55,7 +55,7 @@ class SteamWebApiClientOwnedGamesTest {
         assertThat(games.getFirst().name()).isEqualTo("Team Fortress 2");
         assertThat(games.getFirst().playtimeForeverMinutes()).isEqualTo(1234);
         assertThat(games.getFirst().lastPlayedEpochSeconds()).isEqualTo(1721000000L);
-        assertThat(games.getLast().lastPlayedEpochSeconds()).isEqualTo(0L);
+        assertThat(games.getLast().lastPlayedEpochSeconds()).isZero();
         assertThat(games.getFirst().iconHash()).isEqualTo("abc123hash");
         assertThat(games.getLast().iconHash()).isNull();
     }
