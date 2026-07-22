@@ -5,7 +5,10 @@ export type Achievements = {
 }
 
 export async function getAchievements(appId: number): Promise<Achievements> {
-  const response = await fetch(`/api/achievements?appId=${encodeURIComponent(appId)}`)
+  if (!Number.isInteger(appId) || appId < 0) {
+    throw new Error(`Invalid appId: ${appId}`)
+  }
+  const response = await fetch(`/api/achievements?appId=${appId}`)
   if (!response.ok) {
     throw new Error(`Failed to load achievements: ${response.status}`)
   }
