@@ -1,6 +1,7 @@
 import { Link, useParams } from 'react-router-dom'
 import GameCard from './GameCard'
 import GameDetailStreams from './GameDetailStreams'
+import AchievementSummary from './AchievementSummary'
 import { useFavourites } from '../hooks/useFavourites'
 import { useLibrary } from '../hooks/useLibrary'
 
@@ -50,7 +51,10 @@ function GameDetailPage() {
 
       <section className="stats-placeholder">
         <h2 className="section-heading">Stats</h2>
-        <p className="library-message">More stats coming soon.</p>
+        {libraryGame !== undefined && (
+          <p className="library-message">{libraryGame.playtimeHours} hours played</p>
+        )}
+        <AchievementSummary appId={game.appId} />
       </section>
 
       <section>

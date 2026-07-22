@@ -3,12 +3,39 @@ import { useNavigate } from 'react-router-dom'
 import GameCard from './GameCard'
 import { useLibrary } from '../hooks/useLibrary'
 import { useFavourites } from '../hooks/useFavourites'
+import type { Game } from '../api/library'
+
+type SortOrder = 'lastPlayed' | 'mostPlaytime' | 'az' | 'za'
+
+function compareGames(a: Game, b: Game, sortOrder: SortOrder): number {
+  switch (sortOrder) {
+    case 'mostPlaytime':
+      return b.playtimeHours - a.playtimeHours
+    case 'az':
+      return a.name.localeCompare(b.name)
+    case 'za':
+      return b.name.localeCompare(a.name)
+    case 'lastPlayed': {
+      if (a.lastPlayedEpochSeconds === 0 && b.lastPlayedEpochSeconds === 0) {
+        return b.playtimeHours - a.playtimeHours
+      }
+      if (a.lastPlayedEpochSeconds === 0) {
+        return 1
+      }
+      if (b.lastPlayedEpochSeconds === 0) {
+        return -1
+      }
+      return b.lastPlayedEpochSeconds - a.lastPlayedEpochSeconds
+    }
+  }
+}
 
 function LibraryGrid({ enabled }: { enabled: boolean }) {
   const navigate = useNavigate()
   const { games, status } = useLibrary(enabled)
   const { favourites, favouriteIds, status: favStatus, toggle } = useFavourites(enabled)
   const [query, setQuery] = useState('')
+  const [sortOrder, setSortOrder] = useState<SortOrder>('lastPlayed')
 
   let favouritesContent
   if (favStatus === 'loading') {
@@ -20,15 +47,12 @@ function LibraryGrid({ enabled }: { enabled: boolean }) {
       <p className="library-message">No favourites yet — tap the star on a game to add one.</p>
     )
   } else {
-    // Favourite snapshots don't carry playtime (it's live data, not frozen at
-    // favourite-time) — fill it in from the library entry when we have one.
-    const libraryGamesByAppId = new Map(games.map((game) => [game.appId, game]))
     favouritesContent = (
       <div className="library-grid">
         {favourites.map((fav) => (
           <GameCard
             key={fav.appId}
-            game={{ ...fav, playtimeHours: libraryGamesByAppId.get(fav.appId)?.playtimeHours }}
+            game={fav}
             isFavourite={true}
             onToggleFavourite={() => toggle(fav)}
             onClick={() => navigate(`/games/${fav.appId}`)}
@@ -38,9 +62,9 @@ function LibraryGrid({ enabled }: { enabled: boolean }) {
     )
   }
 
-  const filteredGames = games.filter((game) =>
-    game.name.toLowerCase().includes(query.toLowerCase())
-  )
+  const filteredGames = games
+    .filter((game) => game.name.toLowerCase().includes(query.toLowerCase()))
+    .sort((a, b) => compareGames(a, b, sortOrder))
 
   let libraryContent
   if (status === 'loading') {
@@ -86,6 +110,16 @@ function LibraryGrid({ enabled }: { enabled: boolean }) {
         value={query}
         onChange={(e) => setQuery(e.target.value)}
       />
+      <select
+        className="library-sort"
+        value={sortOrder}
+        onChange={(e) => setSortOrder(e.target.value as SortOrder)}
+      >
+        <option value="lastPlayed">Last Played</option>
+        <option value="mostPlaytime">Most Playtime</option>
+        <option value="az">A-Z</option>
+        <option value="za">Z-A</option>
+      </select>
       <section className="library-section">
         <h2 className="section-heading">Library</h2>
         {libraryContent}
