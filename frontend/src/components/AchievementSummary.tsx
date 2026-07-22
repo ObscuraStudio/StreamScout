@@ -1,6 +1,6 @@
 import { useAchievements } from '../hooks/useAchievements'
 
-function AchievementSummary({ appId }: { appId: number }) {
+function AchievementSummary({ appId }: Readonly<{ appId: number }>) {
   const { achievements, status } = useAchievements(appId)
 
   if (status === 'loading') {

@@ -5,7 +5,7 @@ export type Achievements = {
 }
 
 export async function getAchievements(appId: number): Promise<Achievements> {
-  const response = await fetch(`/api/achievements?appId=${appId}`)
+  const response = await fetch(`/api/achievements?appId=${encodeURIComponent(appId)}`)
   if (!response.ok) {
     throw new Error(`Failed to load achievements: ${response.status}`)
   }
