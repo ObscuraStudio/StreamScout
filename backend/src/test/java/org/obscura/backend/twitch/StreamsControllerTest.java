@@ -49,7 +49,7 @@ class StreamsControllerTest {
     @Test
     void streams_returnsStreams_forAnyGameName_notJustFavourites() throws Exception {
         User principal = new User("76561198012345678", "Name", null);
-        when(twitchClient.getLiveStreams("Team Fortress 2")).thenReturn(List.of(
+        when(twitchClient.getLiveStreams("Team Fortress 2", null)).thenReturn(List.of(
                 new TwitchStream("SomeStreamer", "somestreamer", "Playing TF2", 42,
                         "https://img/preview-320x180.jpg")));
 
@@ -67,7 +67,7 @@ class StreamsControllerTest {
     @Test
     void streams_returnsEmptyArray_whenTwitchHasNoStreams() throws Exception {
         User principal = new User("76561198012345678", "Name", null);
-        when(twitchClient.getLiveStreams("Some Obscure Game")).thenReturn(List.of());
+        when(twitchClient.getLiveStreams("Some Obscure Game", null)).thenReturn(List.of());
 
         mockMvc.perform(get("/api/streams")
                         .param("name", "Some Obscure Game")
@@ -75,5 +75,21 @@ class StreamsControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.length()").value(0));
+    }
+
+    @Test
+    void streams_passesLanguageParam_toTwitchClient() throws Exception {
+        User principal = new User("76561198012345678", "Name", null);
+        when(twitchClient.getLiveStreams("Team Fortress 2", "de")).thenReturn(List.of(
+                new TwitchStream("DeutscherStreamer", "deutscherstreamer", "Spielt TF2", 17,
+                        "https://img/preview-320x180.jpg")));
+
+        mockMvc.perform(get("/api/streams")
+                        .param("name", "Team Fortress 2")
+                        .param("language", "de")
+                        .with(SecurityMockMvcRequestPostProcessors.authentication(auth(principal))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].streamerName").value("DeutscherStreamer"))
+                .andExpect(jsonPath("$[0].viewerCount").value(17));
     }
 }

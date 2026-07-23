@@ -25,7 +25,10 @@ class TwitchClientTest {
 
     private static final String SEARCH_CATEGORIES_URL =
             "https://api.twitch.tv/helix/search/categories?query={name}&first=1";
-    private static final String STREAMS_URL = "https://api.twitch.tv/helix/streams?game_id={gameId}&first=6";
+    private static final String STREAMS_URL =
+            "https://api.twitch.tv/helix/streams?game_id={gameId}&first=100";
+    private static final String STREAMS_URL_WITH_LANGUAGE =
+            "https://api.twitch.tv/helix/streams?game_id={gameId}&first=100&language={language}";
 
     private MockRestServiceServer mockServer;
     private TwitchClient client;
@@ -63,7 +66,7 @@ class TwitchClientTest {
                         }]}
                         """, MediaType.APPLICATION_JSON));
 
-        List<TwitchStream> streams = client.getLiveStreams("Team Fortress 2");
+        List<TwitchStream> streams = client.getLiveStreams("Team Fortress 2", null);
 
         assertThat(streams).hasSize(1);
         TwitchStream stream = streams.getFirst();
@@ -83,7 +86,7 @@ class TwitchClientTest {
                         {"data": []}
                         """, MediaType.APPLICATION_JSON));
 
-        List<TwitchStream> streams = client.getLiveStreams("Some Obscure Game");
+        List<TwitchStream> streams = client.getLiveStreams("Some Obscure Game", null);
 
         assertThat(streams).isEmpty();
     }
@@ -101,7 +104,7 @@ class TwitchClientTest {
                         {"data": []}
                         """, MediaType.APPLICATION_JSON));
 
-        List<TwitchStream> streams = client.getLiveStreams("Team Fortress 2");
+        List<TwitchStream> streams = client.getLiveStreams("Team Fortress 2", null);
 
         assertThat(streams).isEmpty();
     }
@@ -112,7 +115,7 @@ class TwitchClientTest {
                 .andExpect(method(GET))
                 .andRespond(withServerError());
 
-        assertThrows(TwitchApiException.class, () -> client.getLiveStreams("Team Fortress 2"));
+        assertThrows(TwitchApiException.class, () -> client.getLiveStreams("Team Fortress 2", null));
     }
 
     @Test
@@ -128,7 +131,7 @@ class TwitchClientTest {
                         {"data": []}
                         """, MediaType.APPLICATION_JSON));
 
-        List<TwitchStream> streams = client.getLiveStreams("FINAL FANTASY XV WINDOWS EDITION");
+        List<TwitchStream> streams = client.getLiveStreams("FINAL FANTASY XV WINDOWS EDITION", null);
 
         assertThat(streams).isEmpty();
     }
@@ -151,8 +154,38 @@ class TwitchClientTest {
                         {"data": []}
                         """, MediaType.APPLICATION_JSON));
 
-        List<TwitchStream> streams = client.getLiveStreams("FINAL FANTASY XV WINDOWS EDITION");
+        List<TwitchStream> streams = client.getLiveStreams("FINAL FANTASY XV WINDOWS EDITION", null);
 
         assertThat(streams).isEmpty();
+    }
+
+    @Test
+    void getLiveStreams_appendsLanguageParam_whenLanguageProvided() {
+        mockServer.expect(requestToUriTemplate(SEARCH_CATEGORIES_URL, "Team Fortress 2"))
+                .andExpect(method(GET))
+                .andRespond(withSuccess("""
+                        {"data": [{"id": "1234", "name": "Team Fortress 2", "box_art_url": "https://example.com/box.jpg"}]}
+                        """, MediaType.APPLICATION_JSON));
+        mockServer.expect(requestToUriTemplate(STREAMS_URL_WITH_LANGUAGE, "1234", "de"))
+                .andExpect(method(GET))
+                .andExpect(header("Authorization", "Bearer test-token"))
+                .andExpect(header("Client-Id", "test-client-id"))
+                .andRespond(withSuccess("""
+                        {"data": [{
+                          "user_name": "DeutscherStreamer",
+                          "user_login": "deutscherstreamer",
+                          "title": "Spielt TF2",
+                          "viewer_count": 17,
+                          "thumbnail_url": "https://static-cdn.jtvnw.net/previews-ttv/live_user_deutscherstreamer-{width}x{height}.jpg"
+                        }]}
+                        """, MediaType.APPLICATION_JSON));
+
+        List<TwitchStream> streams = client.getLiveStreams("Team Fortress 2", "de");
+
+        assertThat(streams).hasSize(1);
+        TwitchStream stream = streams.getFirst();
+        assertThat(stream.streamerName()).isEqualTo("DeutscherStreamer");
+        assertThat(stream.streamerLogin()).isEqualTo("deutscherstreamer");
+        assertThat(stream.viewerCount()).isEqualTo(17);
     }
 }

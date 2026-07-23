@@ -15,7 +15,10 @@ public class TwitchClient {
     private static final Logger log = LoggerFactory.getLogger(TwitchClient.class);
     private static final String SEARCH_CATEGORIES_URL =
             "https://api.twitch.tv/helix/search/categories?query={name}&first=1";
-    private static final String STREAMS_URL = "https://api.twitch.tv/helix/streams?game_id={gameId}&first=6";
+    private static final String STREAMS_URL =
+            "https://api.twitch.tv/helix/streams?game_id={gameId}&first=100";
+    private static final String STREAMS_URL_WITH_LANGUAGE =
+            "https://api.twitch.tv/helix/streams?game_id={gameId}&first=100&language={language}";
 
     private final RestClient restClient;
     private final TwitchAuthClient authClient;
@@ -30,13 +33,13 @@ public class TwitchClient {
         this.clientId = clientId;
     }
 
-    public List<TwitchStream> getLiveStreams(String gameName) {
+    public List<TwitchStream> getLiveStreams(String gameName, String language) {
         try {
             String gameId = resolveGameId(gameName);
             if (gameId == null) {
                 return List.of();
             }
-            return fetchStreams(gameId);
+            return fetchStreams(gameId, language);
         } catch (Exception e) {
             log.warn("Failed to fetch Twitch streams for {}: {}", gameName, e.getMessage());
             throw new TwitchApiException("Could not reach Twitch");
@@ -70,9 +73,10 @@ public class TwitchClient {
         return games.getFirst().id();
     }
 
-    private List<TwitchStream> fetchStreams(String gameId) {
-        StreamsResponse response = restClient.get()
-                .uri(STREAMS_URL, gameId)
+    private List<TwitchStream> fetchStreams(String gameId, String language) {
+        StreamsResponse response = (language == null || language.isBlank()
+                        ? restClient.get().uri(STREAMS_URL, gameId)
+                        : restClient.get().uri(STREAMS_URL_WITH_LANGUAGE, gameId, language))
                 .header("Authorization", "Bearer " + authClient.getAppAccessToken())
                 .header("Client-Id", clientId)
                 .retrieve()

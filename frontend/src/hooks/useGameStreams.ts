@@ -3,7 +3,7 @@ import { getStreams, type Stream } from '../api/streams'
 
 type StreamsStatus = 'loading' | 'loaded' | 'error'
 
-export function useGameStreams(gameName: string) {
+export function useGameStreams(gameName: string, language: string) {
   const [status, setStatus] = useState<StreamsStatus>('loading')
   const [streams, setStreams] = useState<Stream[]>([])
 
@@ -11,7 +11,7 @@ export function useGameStreams(gameName: string) {
     let cancelled = false
     setStatus('loading')
 
-    getStreams(gameName)
+    getStreams(gameName, language || undefined)
       .then((loaded) => {
         if (!cancelled) {
           setStreams(loaded)
@@ -28,7 +28,7 @@ export function useGameStreams(gameName: string) {
     return () => {
       cancelled = true
     }
-  }, [gameName])
+  }, [gameName, language])
 
   return { status, streams }
 }
