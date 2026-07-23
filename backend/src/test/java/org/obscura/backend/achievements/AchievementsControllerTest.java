@@ -1,7 +1,7 @@
-package org.obscura.backend.library;
+package org.obscura.backend.achievements;
 
 import org.junit.jupiter.api.Test;
-import org.obscura.backend.steam.OwnedGame;
+import org.obscura.backend.steam.AchievementSummary;
 import org.obscura.backend.steam.SteamOpenIdClient;
 import org.obscura.backend.steam.SteamWebApiClient;
 import org.obscura.backend.user.User;
@@ -23,7 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
-class LibraryControllerTest {
+class AchievementsControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -39,47 +39,40 @@ class LibraryControllerTest {
     private UserRepository userRepository;
 
     @Test
-    void library_returnsUnauthorized_whenNoAuthenticatedUser() throws Exception {
-        mockMvc.perform(get("/api/library"))
+    void achievements_returnsUnauthorized_whenNoAuthenticatedUser() throws Exception {
+        mockMvc.perform(get("/api/achievements").param("appId", "440"))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
-    void library_returnsGamesSortedByPlaytimeDesc_withHoursAndImageUrl() throws Exception {
+    void achievements_returnsAchievedAndTotal_whenAuthenticated() throws Exception {
         User user = new User("76561198012345678", "SomeName", null);
-        when(steamWebApiClient.getOwnedGames("76561198012345678")).thenReturn(List.of(
-                new OwnedGame(570, "Dota 2", 60, 0, null),
-                new OwnedGame(440, "Team Fortress 2", 1234, 1721000000L, "abc123hash")));
+        when(steamWebApiClient.getAchievementSummary("76561198012345678", 440))
+                .thenReturn(new AchievementSummary(2, 3, false));
 
-        mockMvc.perform(get("/api/library")
+        mockMvc.perform(get("/api/achievements")
+                        .param("appId", "440")
                         .with(SecurityMockMvcRequestPostProcessors.authentication(
                                 new UsernamePasswordAuthenticationToken(user, null, List.of()))))
                 .andExpect(status().isOk())
-                // Sorted by playtime desc: TF2 (1234) first, Dota 2 (60) second
-                .andExpect(jsonPath("$[0].appId").value(440))
-                .andExpect(jsonPath("$[0].name").value("Team Fortress 2"))
-                .andExpect(jsonPath("$[0].playtimeHours").value(20.6))
-                .andExpect(jsonPath("$[0].imageUrl")
-                        .value("https://cdn.cloudflare.steamstatic.com/steam/apps/440/header.jpg"))
-                .andExpect(jsonPath("$[0].lastPlayedEpochSeconds").value(1721000000))
-                .andExpect(jsonPath("$[0].iconImageUrl")
-                        .value("https://media.steampowered.com/steamcommunity/public/images/apps/440/abc123hash.jpg"))
-                .andExpect(jsonPath("$[1].appId").value(570))
-                .andExpect(jsonPath("$[1].playtimeHours").value(1.0))
-                .andExpect(jsonPath("$[1].lastPlayedEpochSeconds").value(0))
-                .andExpect(jsonPath("$[1].iconImageUrl").doesNotExist());
+                .andExpect(jsonPath("$.achieved").value(2))
+                .andExpect(jsonPath("$.total").value(3))
+                .andExpect(jsonPath("$.profilePrivate").value(false));
     }
 
     @Test
-    void library_returnsEmptyArray_whenUserHasNoGames() throws Exception {
+    void achievements_returnsProfilePrivateFlag_whenProfileIsNotPublic() throws Exception {
         User user = new User("76561198012345678", "SomeName", null);
-        when(steamWebApiClient.getOwnedGames("76561198012345678")).thenReturn(List.of());
+        when(steamWebApiClient.getAchievementSummary("76561198012345678", 1245620))
+                .thenReturn(new AchievementSummary(0, 42, true));
 
-        mockMvc.perform(get("/api/library")
+        mockMvc.perform(get("/api/achievements")
+                        .param("appId", "1245620")
                         .with(SecurityMockMvcRequestPostProcessors.authentication(
                                 new UsernamePasswordAuthenticationToken(user, null, List.of()))))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$.length()").value(0));
+                .andExpect(jsonPath("$.achieved").value(0))
+                .andExpect(jsonPath("$.total").value(42))
+                .andExpect(jsonPath("$.profilePrivate").value(true));
     }
 }

@@ -3,6 +3,8 @@ export type Game = {
   name: string
   playtimeHours: number
   imageUrl: string
+  lastPlayedEpochSeconds: number
+  iconImageUrl: string | null
 }
 
 export async function getLibrary(): Promise<Game[]> {

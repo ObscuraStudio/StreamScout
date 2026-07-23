@@ -41,7 +41,7 @@ class SteamWebApiClientOwnedGamesTest {
                           "response": {
                             "game_count": 2,
                             "games": [
-                              {"appid": 440, "name": "Team Fortress 2", "playtime_forever": 1234},
+                              {"appid": 440, "name": "Team Fortress 2", "playtime_forever": 1234, "rtime_last_played": 1721000000, "img_icon_url": "abc123hash"},
                               {"appid": 570, "name": "Dota 2", "playtime_forever": 60}
                             ]
                           }
@@ -54,6 +54,10 @@ class SteamWebApiClientOwnedGamesTest {
         assertThat(games.getFirst().appId()).isEqualTo(440);
         assertThat(games.getFirst().name()).isEqualTo("Team Fortress 2");
         assertThat(games.getFirst().playtimeForeverMinutes()).isEqualTo(1234);
+        assertThat(games.getFirst().lastPlayedEpochSeconds()).isEqualTo(1721000000L);
+        assertThat(games.getLast().lastPlayedEpochSeconds()).isZero();
+        assertThat(games.getFirst().iconHash()).isEqualTo("abc123hash");
+        assertThat(games.getLast().iconHash()).isNull();
     }
 
     @Test
