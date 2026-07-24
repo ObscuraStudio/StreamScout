@@ -21,12 +21,14 @@ public class StreamsController {
 
     @GetMapping("/api/streams")
     public ResponseEntity<List<StreamResponse>> streams(
-            Authentication authentication, @RequestParam String name) {
+            Authentication authentication,
+            @RequestParam String name,
+            @RequestParam(required = false) String language) {
         if (authentication == null || !(authentication.getPrincipal() instanceof User)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        List<StreamResponse> body = twitchClient.getLiveStreams(name).stream()
+        List<StreamResponse> body = twitchClient.getLiveStreams(name, language).stream()
                 .map(StreamResponse::fromTwitchStream)
                 .toList();
         return ResponseEntity.ok(body);

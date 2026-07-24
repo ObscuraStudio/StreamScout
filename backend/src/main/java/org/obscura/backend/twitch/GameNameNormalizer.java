@@ -8,7 +8,7 @@ public final class GameNameNormalizer {
     private static final Pattern EDITION_SUFFIX_PATTERN = Pattern.compile(
             "[\\s:-]*+(WINDOWS EDITION|GAME OF THE YEAR EDITION|GOTY EDITION|GOTY|DEFINITIVE EDITION|"
                     + "ULTIMATE EDITION|DELUXE EDITION|COMPLETE EDITION|ENHANCED EDITION|"
-                    + "ANNIVERSARY EDITION|REMASTERED|REMASTER)\\s*+$",
+                    + "ANNIVERSARY EDITION|REMASTERED|REMASTER|™|PREPARE TO DIE EDITION)\\s*+$",
             Pattern.CASE_INSENSITIVE);
 
     private GameNameNormalizer() {

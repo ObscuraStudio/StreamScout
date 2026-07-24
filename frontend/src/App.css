@@ -409,6 +409,51 @@
     background: color-mix(in srgb, var(--accent-bg) 50%, var(--accent) 20%);
 }
 
+.streams-controls {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin: 0 0 16px;
+}
+
+.streams-controls .library-sort {
+    margin: 0;
+}
+
+.streams-pagination {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 16px;
+}
+
+.streams-page-button {
+    min-width: 32px;
+    padding: 6px 10px;
+    font-size: 13px;
+    color: #e6e6e6;
+    background: #2a2f3a;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.streams-page-button:hover {
+    background: color-mix(in srgb, #2a2f3a 80%, var(--accent) 20%);
+}
+
+.streams-page-button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+.streams-page-button-active {
+    border-color: var(--accent-border);
+    color: var(--accent);
+    font-weight: 600;
+}
+
 .game-card {
     transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
 }

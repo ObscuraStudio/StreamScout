@@ -6,8 +6,12 @@ export type Stream = {
   thumbnailUrl: string
 }
 
-export async function getStreams(gameName: string): Promise<Stream[]> {
-  const response = await fetch(`/api/streams?name=${encodeURIComponent(gameName)}`)
+export async function getStreams(gameName: string, language?: string): Promise<Stream[]> {
+  const params = new URLSearchParams({ name: gameName })
+  if (language) {
+    params.set('language', language)
+  }
+  const response = await fetch(`/api/streams?${params.toString()}`)
   if (!response.ok) {
     throw new Error(`Failed to load streams: ${response.status}`)
   }
