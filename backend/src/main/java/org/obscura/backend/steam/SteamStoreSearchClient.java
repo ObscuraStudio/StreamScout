@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class SteamStoreSearchClient {
 
     private static final Logger log = LoggerFactory.getLogger(SteamStoreSearchClient.class);
-    private static final long CACHE_TTL_SECONDS = 45 * 60;
+    private static final long CACHE_TTL_SECONDS = 45 * 60L;
     private static final String SEARCH_URL =
             "https://store.steampowered.com/search/results/?query&start=0&count={count}"
                     + "&dynamic_data=&sort_by=_ASC&filter={filter}&infinite=1&cc=us&l=english";
@@ -79,21 +79,19 @@ public class SteamStoreSearchClient {
                 break;
             }
             String appIdAttr = row.attr("data-ds-appid");
-            if (appIdAttr.isBlank() || appIdAttr.contains(",")) {
-                continue;
+            if (!appIdAttr.isBlank() && !appIdAttr.contains(",")) {
+                Element titleEl = row.selectFirst("span.title");
+                Element releaseEl = row.selectFirst("div.search_released");
+                Element imageEl = row.selectFirst("img");
+
+                listings.add(new SteamStoreListing(
+                        Integer.parseInt(appIdAttr),
+                        titleEl == null ? "" : titleEl.text(),
+                        releaseEl == null ? "" : releaseEl.text(),
+                        imageEl == null ? "" : imageEl.attr("src"),
+                        rank));
+                rank++;
             }
-
-            Element titleEl = row.selectFirst("span.title");
-            Element releaseEl = row.selectFirst("div.search_released");
-            Element imageEl = row.selectFirst("img");
-
-            listings.add(new SteamStoreListing(
-                    Integer.parseInt(appIdAttr),
-                    titleEl == null ? "" : titleEl.text(),
-                    releaseEl == null ? "" : releaseEl.text(),
-                    imageEl == null ? "" : imageEl.attr("src"),
-                    rank));
-            rank++;
         }
         return listings;
     }
