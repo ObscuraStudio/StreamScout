@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import GameCard from './GameCard'
+import ComingSoonPanel from './ComingSoonPanel'
+import WishlistRankingPanel from './WishlistRankingPanel'
 import { useLibrary } from '../hooks/useLibrary'
 import { useFavourites } from '../hooks/useFavourites'
 import type { Game } from '../api/library'
@@ -98,33 +100,39 @@ function LibraryGrid({ enabled }: { enabled: boolean }) {
   }
 
   return (
-    <>
-      <section className="favourites-section">
-        <h2 className="section-heading">Favourites</h2>
-        {favouritesContent}
-      </section>
-      <input
-        type="text"
-        className="library-search"
-        placeholder="Search your library..."
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-      />
-      <select
-        className="library-sort"
-        value={sortOrder}
-        onChange={(e) => setSortOrder(e.target.value as SortOrder)}
-      >
-        <option value="lastPlayed">Last Played</option>
-        <option value="mostPlaytime">Most Playtime</option>
-        <option value="az">A-Z</option>
-        <option value="za">Z-A</option>
-      </select>
-      <section className="library-section">
-        <h2 className="section-heading">Library</h2>
-        {libraryContent}
-      </section>
-    </>
+    <div className="library-page-layout">
+      <div className="discovery-sidebar">
+        <ComingSoonPanel />
+        <WishlistRankingPanel />
+      </div>
+      <div className="library-page-center">
+        <section className="favourites-section">
+          <h2 className="section-heading">Favourites</h2>
+          {favouritesContent}
+        </section>
+        <input
+          type="text"
+          className="library-search"
+          placeholder="Search your library..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+        <select
+          className="library-sort"
+          value={sortOrder}
+          onChange={(e) => setSortOrder(e.target.value as SortOrder)}
+        >
+          <option value="lastPlayed">Last Played</option>
+          <option value="mostPlaytime">Most Playtime</option>
+          <option value="az">A-Z</option>
+          <option value="za">Z-A</option>
+        </select>
+        <section className="library-section">
+          <h2 className="section-heading">Library</h2>
+          {libraryContent}
+        </section>
+      </div>
+    </div>
   )
 }
 

@@ -517,3 +517,82 @@
     padding: 16px;
     margin-bottom: 24px;
 }
+
+.library-page-layout {
+    position: relative;
+    margin-inline: -24px;
+    padding-inline: 24px;
+}
+
+.library-page-center {
+    text-align: center;
+}
+
+.discovery-sidebar {
+    position: absolute;
+    top: 0;
+    right: calc(100% + 24px);
+    width: 260px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    text-align: left;
+}
+
+.discovery-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.discovery-item-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px;
+    border-radius: 6px;
+    text-decoration: none;
+    color: inherit;
+    background: #1b1f27;
+    transition: background-color 0.15s ease;
+}
+
+.discovery-item-link:hover {
+    background-color: color-mix(in srgb, #1b1f27 80%, var(--accent) 20%);
+}
+
+.discovery-item-image {
+    width: 60px;
+    height: 28px;
+    object-fit: cover;
+    border-radius: 3px;
+    flex-shrink: 0;
+}
+
+.discovery-item-name {
+    font-size: 13px;
+    font-weight: 600;
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.discovery-item-meta {
+    font-size: 11px;
+    color: #aab;
+    flex-shrink: 0;
+}
+
+.discovery-item-rank {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent);
+    flex-shrink: 0;
+    width: 24px;
+    text-align: center;
+}
