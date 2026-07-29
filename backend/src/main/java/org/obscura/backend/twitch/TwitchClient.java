@@ -21,6 +21,9 @@ public class TwitchClient {
             "https://api.twitch.tv/helix/streams?game_id={gameId}&first=100&language={language}";
     private static final String TOP_STREAMS_URL =
             "https://api.twitch.tv/helix/streams?first={first}";
+    private static final String AUTHORIZATION_HEADER = "Authorization";
+    private static final String BEARER_PREFIX = "Bearer ";
+    private static final String CLIENT_ID_HEADER = "Client-Id";
 
     private final RestClient restClient;
     private final TwitchAuthClient authClient;
@@ -52,8 +55,8 @@ public class TwitchClient {
         try {
             StreamsResponse response = restClient.get()
                     .uri(TOP_STREAMS_URL, limit)
-                    .header("Authorization", "Bearer " + authClient.getAppAccessToken())
-                    .header("Client-Id", clientId)
+                    .header(AUTHORIZATION_HEADER, BEARER_PREFIX + authClient.getAppAccessToken())
+                    .header(CLIENT_ID_HEADER, clientId)
                     .retrieve()
                     .body(StreamsResponse.class);
             return mapStreams(response);
@@ -78,8 +81,8 @@ public class TwitchClient {
     private String fetchGameId(String query) {
         GamesResponse response = restClient.get()
                 .uri(SEARCH_CATEGORIES_URL, query)
-                .header("Authorization", "Bearer " + authClient.getAppAccessToken())
-                .header("Client-Id", clientId)
+                .header(AUTHORIZATION_HEADER, BEARER_PREFIX + authClient.getAppAccessToken())
+                .header(CLIENT_ID_HEADER, clientId)
                 .retrieve()
                 .body(GamesResponse.class);
 
@@ -94,8 +97,8 @@ public class TwitchClient {
         StreamsResponse response = (language == null || language.isBlank()
                         ? restClient.get().uri(STREAMS_URL, gameId)
                         : restClient.get().uri(STREAMS_URL_WITH_LANGUAGE, gameId, language))
-                .header("Authorization", "Bearer " + authClient.getAppAccessToken())
-                .header("Client-Id", clientId)
+                .header(AUTHORIZATION_HEADER, BEARER_PREFIX + authClient.getAppAccessToken())
+                .header(CLIENT_ID_HEADER, clientId)
                 .retrieve()
                 .body(StreamsResponse.class);
 
