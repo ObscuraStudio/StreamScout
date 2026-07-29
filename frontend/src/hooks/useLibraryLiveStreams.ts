@@ -47,7 +47,10 @@ export function useLibraryLiveStreams(games: Game[]) {
         .map((result) => ({
           appId: result.game.appId,
           gameName: result.game.name,
-          stream: result.streams.reduce((top, s) => (s.viewerCount > top.viewerCount ? s : top)),
+          stream: result.streams.reduce(
+            (top, s) => (s.viewerCount > top.viewerCount ? s : top),
+            result.streams[0],
+          ),
         }))
         .sort((a, b) => b.stream.viewerCount - a.stream.viewerCount)
         .slice(0, DISPLAY_COUNT)
