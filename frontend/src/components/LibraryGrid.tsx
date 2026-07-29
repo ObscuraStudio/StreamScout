@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import GameCard from './GameCard'
 import ComingSoonPanel from './ComingSoonPanel'
 import WishlistRankingPanel from './WishlistRankingPanel'
+import NowStreamingPanel from './NowStreamingPanel'
+import TrendingStreamsPanel from './TrendingStreamsPanel'
 import { useLibrary } from '../hooks/useLibrary'
 import { useFavourites } from '../hooks/useFavourites'
 import type { Game } from '../api/library'
@@ -101,7 +103,7 @@ function LibraryGrid({ enabled }: { enabled: boolean }) {
 
   return (
     <div className="library-page-layout">
-      <div className="discovery-sidebar">
+      <div className="discovery-sidebar discovery-sidebar-left">
         <ComingSoonPanel />
         <WishlistRankingPanel />
       </div>
@@ -131,6 +133,10 @@ function LibraryGrid({ enabled }: { enabled: boolean }) {
           <h2 className="section-heading">Library</h2>
           {libraryContent}
         </section>
+      </div>
+      <div className="discovery-sidebar discovery-sidebar-right">
+        <NowStreamingPanel games={games} />
+        <TrendingStreamsPanel />
       </div>
     </div>
   )

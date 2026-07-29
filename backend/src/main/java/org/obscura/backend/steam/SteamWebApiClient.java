@@ -22,6 +22,8 @@ public class SteamWebApiClient {
             "https://api.steampowered.com/ISteamUserStats/GetSchemaForGame/v2/?key={key}&appid={appid}";
     private static final String GET_PLAYER_ACHIEVEMENTS_URL =
             "https://api.steampowered.com/ISteamUserStats/GetPlayerAchievements/v0001/?appid={appid}&key={key}&steamid={steamid}";
+    private static final String GET_NUMBER_OF_CURRENT_PLAYERS_URL =
+            "https://api.steampowered.com/ISteamUserStats/GetNumberOfCurrentPlayers/v1/?appid={appid}";
 
     private final RestClient restClient;
     private final String apiKey;
@@ -136,6 +138,25 @@ public class SteamWebApiClient {
                 .count();
     }
 
+    public int getCurrentPlayerCount(int appId) {
+        try {
+            NumberOfCurrentPlayersResponse response = restClient.get()
+                    .uri(GET_NUMBER_OF_CURRENT_PLAYERS_URL, appId)
+                    .retrieve()
+                    .body(NumberOfCurrentPlayersResponse.class);
+
+            if (response == null || response.response() == null
+                    || response.response().result() != 1
+                    || response.response().player_count() == null) {
+                return 0;
+            }
+            return response.response().player_count();
+        } catch (Exception e) {
+            log.warn("Failed to fetch current player count for appId={}: {}", appId, e.getMessage());
+            return 0;
+        }
+    }
+
     private static PlayerSummary fallback(String steamId) {
         return new PlayerSummary(steamId, "Steam User", null);
     }
@@ -177,5 +198,11 @@ public class SteamWebApiClient {
     }
 
     private record PlayerAchievement(String apiname, int achieved) {
+    }
+
+    private record NumberOfCurrentPlayersResponse(CurrentPlayersWrapper response) {
+    }
+
+    private record CurrentPlayersWrapper(int result, Integer player_count) {
     }
 }

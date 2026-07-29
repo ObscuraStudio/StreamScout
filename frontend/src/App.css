@@ -531,12 +531,19 @@
 .discovery-sidebar {
     position: absolute;
     top: 0;
-    right: calc(100% + 24px);
     width: 260px;
     display: flex;
     flex-direction: column;
     gap: 24px;
     text-align: left;
+}
+
+.discovery-sidebar-left {
+    right: calc(100% + 24px);
+}
+
+.discovery-sidebar-right {
+    left: calc(100% + 24px);
 }
 
 .discovery-list {

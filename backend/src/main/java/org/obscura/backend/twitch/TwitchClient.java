@@ -19,6 +19,8 @@ public class TwitchClient {
             "https://api.twitch.tv/helix/streams?game_id={gameId}&first=100";
     private static final String STREAMS_URL_WITH_LANGUAGE =
             "https://api.twitch.tv/helix/streams?game_id={gameId}&first=100&language={language}";
+    private static final String TOP_STREAMS_URL =
+            "https://api.twitch.tv/helix/streams?first={first}";
 
     private final RestClient restClient;
     private final TwitchAuthClient authClient;
@@ -42,6 +44,21 @@ public class TwitchClient {
             return fetchStreams(gameId, language);
         } catch (Exception e) {
             log.warn("Failed to fetch Twitch streams for {}: {}", gameName, e.getMessage());
+            throw new TwitchApiException("Could not reach Twitch");
+        }
+    }
+
+    public List<TwitchStream> getTopStreams(int limit) {
+        try {
+            StreamsResponse response = restClient.get()
+                    .uri(TOP_STREAMS_URL, limit)
+                    .header("Authorization", "Bearer " + authClient.getAppAccessToken())
+                    .header("Client-Id", clientId)
+                    .retrieve()
+                    .body(StreamsResponse.class);
+            return mapStreams(response);
+        } catch (Exception e) {
+            log.warn("Failed to fetch top Twitch streams: {}", e.getMessage());
             throw new TwitchApiException("Could not reach Twitch");
         }
     }
@@ -82,6 +99,10 @@ public class TwitchClient {
                 .retrieve()
                 .body(StreamsResponse.class);
 
+        return mapStreams(response);
+    }
+
+    private static List<TwitchStream> mapStreams(StreamsResponse response) {
         List<HelixStream> streams = response == null ? List.of() : response.data();
         if (streams == null) {
             return List.of();

@@ -2,6 +2,7 @@ import { Link, useParams } from 'react-router-dom'
 import GameCard from './GameCard'
 import GameDetailStreams from './GameDetailStreams'
 import AchievementSummary from './AchievementSummary'
+import PlayerCountBadge from './PlayerCountBadge'
 import { useFavourites } from '../hooks/useFavourites'
 import { useLibrary } from '../hooks/useLibrary'
 
@@ -55,6 +56,7 @@ function GameDetailPage() {
           <p className="library-message">{libraryGame.playtimeHours} hours played</p>
         )}
         <AchievementSummary appId={game.appId} />
+        <PlayerCountBadge appId={game.appId} />
       </section>
 
       <section>
