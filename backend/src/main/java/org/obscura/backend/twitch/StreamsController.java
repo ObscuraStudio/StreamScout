@@ -13,6 +13,8 @@ import java.util.List;
 @RestController
 public class StreamsController {
 
+    private static final int DEFAULT_TRENDING_LIMIT = 8;
+
     private final TwitchClient twitchClient;
 
     public StreamsController(TwitchClient twitchClient) {
@@ -29,6 +31,21 @@ public class StreamsController {
         }
 
         List<StreamResponse> body = twitchClient.getLiveStreams(name, language).stream()
+                .map(StreamResponse::fromTwitchStream)
+                .toList();
+        return ResponseEntity.ok(body);
+    }
+
+    @GetMapping("/api/streams/trending")
+    public ResponseEntity<List<StreamResponse>> trending(
+            Authentication authentication,
+            @RequestParam(required = false) Integer limit) {
+        if (authentication == null || !(authentication.getPrincipal() instanceof User)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        List<StreamResponse> body = twitchClient.getTopStreams(limit == null ? DEFAULT_TRENDING_LIMIT : limit)
+                .stream()
                 .map(StreamResponse::fromTwitchStream)
                 .toList();
         return ResponseEntity.ok(body);

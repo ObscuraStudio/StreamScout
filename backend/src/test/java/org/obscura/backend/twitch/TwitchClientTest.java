@@ -29,6 +29,8 @@ class TwitchClientTest {
             "https://api.twitch.tv/helix/streams?game_id={gameId}&first=100";
     private static final String STREAMS_URL_WITH_LANGUAGE =
             "https://api.twitch.tv/helix/streams?game_id={gameId}&first=100&language={language}";
+    private static final String TOP_STREAMS_URL =
+            "https://api.twitch.tv/helix/streams?first={first}";
 
     private MockRestServiceServer mockServer;
     private TwitchClient client;
@@ -187,5 +189,54 @@ class TwitchClientTest {
         assertThat(stream.streamerName()).isEqualTo("DeutscherStreamer");
         assertThat(stream.streamerLogin()).isEqualTo("deutscherstreamer");
         assertThat(stream.viewerCount()).isEqualTo(17);
+    }
+
+    @Test
+    void getTopStreams_returnsParsedStreams_withThumbnailPlaceholdersSubstituted() {
+        mockServer.expect(requestToUriTemplate(TOP_STREAMS_URL, 8))
+                .andExpect(method(GET))
+                .andExpect(header("Authorization", "Bearer test-token"))
+                .andExpect(header("Client-Id", "test-client-id"))
+                .andRespond(withSuccess("""
+                        {"data": [{
+                          "user_name": "BigStreamer",
+                          "user_login": "bigstreamer",
+                          "title": "Playing something popular",
+                          "viewer_count": 45000,
+                          "thumbnail_url": "https://static-cdn.jtvnw.net/previews-ttv/live_user_bigstreamer-{width}x{height}.jpg"
+                        }]}
+                        """, MediaType.APPLICATION_JSON));
+
+        List<TwitchStream> streams = client.getTopStreams(8);
+
+        assertThat(streams).hasSize(1);
+        TwitchStream stream = streams.getFirst();
+        assertThat(stream.streamerName()).isEqualTo("BigStreamer");
+        assertThat(stream.streamerLogin()).isEqualTo("bigstreamer");
+        assertThat(stream.viewerCount()).isEqualTo(45000);
+        assertThat(stream.thumbnailUrl())
+                .isEqualTo("https://static-cdn.jtvnw.net/previews-ttv/live_user_bigstreamer-320x180.jpg");
+    }
+
+    @Test
+    void getTopStreams_returnsEmptyList_whenNoStreamsReturned() {
+        mockServer.expect(requestToUriTemplate(TOP_STREAMS_URL, 8))
+                .andExpect(method(GET))
+                .andRespond(withSuccess("""
+                        {"data": []}
+                        """, MediaType.APPLICATION_JSON));
+
+        List<TwitchStream> streams = client.getTopStreams(8);
+
+        assertThat(streams).isEmpty();
+    }
+
+    @Test
+    void getTopStreams_throwsTwitchApiException_whenRequestFails() {
+        mockServer.expect(requestToUriTemplate(TOP_STREAMS_URL, 8))
+                .andExpect(method(GET))
+                .andRespond(withServerError());
+
+        assertThrows(TwitchApiException.class, () -> client.getTopStreams(8));
     }
 }

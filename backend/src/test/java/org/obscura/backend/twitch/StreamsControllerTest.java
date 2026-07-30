@@ -92,4 +92,38 @@ class StreamsControllerTest {
                 .andExpect(jsonPath("$[0].streamerName").value("DeutscherStreamer"))
                 .andExpect(jsonPath("$[0].viewerCount").value(17));
     }
+
+    @Test
+    void trending_returnsUnauthorized_whenNoAuthenticatedUser() throws Exception {
+        mockMvc.perform(get("/api/streams/trending"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void trending_usesDefaultLimit_whenNoLimitParamGiven() throws Exception {
+        User principal = new User("76561198012345678", "Name", null);
+        when(twitchClient.getTopStreams(8)).thenReturn(List.of(
+                new TwitchStream("BigStreamer", "bigstreamer", "Playing something popular", 45000,
+                        "https://img/preview-320x180.jpg")));
+
+        mockMvc.perform(get("/api/streams/trending")
+                        .with(SecurityMockMvcRequestPostProcessors.authentication(auth(principal))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].streamerName").value("BigStreamer"))
+                .andExpect(jsonPath("$[0].viewerCount").value(45000));
+    }
+
+    @Test
+    void trending_passesLimitParam_toTwitchClient() throws Exception {
+        User principal = new User("76561198012345678", "Name", null);
+        when(twitchClient.getTopStreams(3)).thenReturn(List.of(
+                new TwitchStream("BigStreamer", "bigstreamer", "Playing something popular", 45000,
+                        "https://img/preview-320x180.jpg")));
+
+        mockMvc.perform(get("/api/streams/trending")
+                        .param("limit", "3")
+                        .with(SecurityMockMvcRequestPostProcessors.authentication(auth(principal))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].streamerName").value("BigStreamer"));
+    }
 }

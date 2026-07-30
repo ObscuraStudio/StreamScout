@@ -17,3 +17,15 @@ export async function getStreams(gameName: string, language?: string): Promise<S
   }
   return (await response.json()) as Stream[]
 }
+
+export async function getTrendingStreams(limit?: number): Promise<Stream[]> {
+  const params = new URLSearchParams()
+  if (limit) {
+    params.set('limit', String(limit))
+  }
+  const response = await fetch(`/api/streams/trending?${params.toString()}`)
+  if (!response.ok) {
+    throw new Error(`Failed to load trending streams: ${response.status}`)
+  }
+  return (await response.json()) as Stream[]
+}
