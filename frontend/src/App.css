@@ -603,3 +603,24 @@
     width: 24px;
     text-align: center;
 }
+
+@media (max-width: 768px) {
+    .library-page-layout {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .library-page-center {
+        order: -1;
+    }
+
+    .discovery-sidebar {
+        position: static;
+        width: 100%;
+    }
+
+    .streams-grid-detail {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    }
+}
