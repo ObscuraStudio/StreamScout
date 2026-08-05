@@ -232,6 +232,18 @@
     box-shadow: 0 0 0 2px var(--accent-border);
 }
 
+.login-synopsis {
+    max-width: 420px;
+    margin: 20px auto 0;
+    text-align: center;
+    color: var(--text-h);
+    font-family: var(--heading);
+    font-size: 17px;
+    font-weight: 500;
+    line-height: 1.6;
+    letter-spacing: 0.1px;
+}
+
 .app-main {
     padding: 24px;
 }
@@ -604,20 +616,58 @@
     text-align: center;
 }
 
+.mobile-tab-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.mobile-tab-button {
+    flex: 1 1 0;
+    padding: 10px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #aab;
+    background: #2a2f3a;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.mobile-tab-button:hover {
+    background: color-mix(in srgb, #2a2f3a 80%, var(--accent) 20%);
+}
+
+.mobile-tab-button-active {
+    color: var(--accent);
+    border-color: var(--accent-border);
+    background: var(--accent-bg);
+}
+
+.mobile-tab-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
 @media (max-width: 768px) {
-    .library-page-layout {
+    .app-header {
         display: flex;
         flex-direction: column;
-        gap: 24px;
+        align-items: center;
+        gap: 12px;
     }
 
-    .library-page-center {
-        order: -1;
+    .app-logo {
+        height: 48px;
     }
 
-    .discovery-sidebar {
+    .auth-user {
         position: static;
-        width: 100%;
+    }
+
+    .app-main {
+        padding: 16px;
     }
 
     .streams-grid-detail {
