@@ -1,5 +1,9 @@
 [![Quality gate status](https://sonarcloud.io/api/project_badges/measure?project=obscurastudio_StreamScout&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=obscurastudio_StreamScout)
 
+# Deployment
+
+https://streamscout.onrender.com/
+
 # StreamScout
 
 StreamScout connects your Steam library with Twitch. Log in with Steam,
@@ -21,10 +25,10 @@ place.
 - **Per-game stats** — achievement progress and a live "playing now"
   player count for every game in your library.
 - **Discovery panels**:
-  - *Coming Soon* and *Most Wishlisted* — ranked lists pulled from
-    Steam's own storefront.
-  - *Now Streaming* — live streams for the games you've favourited.
-  - *Trending on Twitch* — the most-watched streams on Twitch right now.
+    - *Coming Soon* and *Most Wishlisted* — ranked lists pulled from
+      Steam's own storefront.
+    - *Now Streaming* — live streams for the games you've favourited.
+    - *Trending on Twitch* — the most-watched streams on Twitch right now.
 - **Mobile-friendly layout** — a dedicated Home / Library / Twitch tab
   layout on mobile, distinct from the desktop view where everything is
   visible at once.
