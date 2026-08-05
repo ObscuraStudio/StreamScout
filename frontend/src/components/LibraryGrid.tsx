@@ -7,9 +7,11 @@ import NowStreamingPanel from './NowStreamingPanel'
 import TrendingStreamsPanel from './TrendingStreamsPanel'
 import { useLibrary } from '../hooks/useLibrary'
 import { useFavourites } from '../hooks/useFavourites'
+import { useIsMobile } from '../hooks/useIsMobile'
 import type { Game } from '../api/library'
 
 type SortOrder = 'lastPlayed' | 'mostPlaytime' | 'az' | 'za'
+type MobileTab = 'home' | 'library' | 'twitch'
 
 function compareGames(a: Game, b: Game, sortOrder: SortOrder): number {
   switch (sortOrder) {
@@ -36,10 +38,12 @@ function compareGames(a: Game, b: Game, sortOrder: SortOrder): number {
 
 function LibraryGrid({ enabled }: { enabled: boolean }) {
   const navigate = useNavigate()
+  const isMobile = useIsMobile()
   const { games, status } = useLibrary(enabled)
   const { favourites, favouriteIds, status: favStatus, toggle } = useFavourites(enabled)
   const [query, setQuery] = useState('')
   const [sortOrder, setSortOrder] = useState<SortOrder>('lastPlayed')
+  const [activeTab, setActiveTab] = useState<MobileTab>('home')
 
   let favouritesContent
   if (favStatus === 'loading') {
@@ -101,6 +105,85 @@ function LibraryGrid({ enabled }: { enabled: boolean }) {
     )
   }
 
+  const librarySortControls = (
+    <>
+      <input
+        type="text"
+        className="library-search"
+        placeholder="Search your library..."
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+      />
+      <select
+        className="library-sort"
+        value={sortOrder}
+        onChange={(e) => setSortOrder(e.target.value as SortOrder)}
+      >
+        <option value="lastPlayed">Last Played</option>
+        <option value="mostPlaytime">Most Playtime</option>
+        <option value="az">A-Z</option>
+        <option value="za">Z-A</option>
+      </select>
+    </>
+  )
+
+  if (isMobile) {
+    const favouriteGames = games.filter((game) => favouriteIds.has(game.appId))
+
+    return (
+      <div className="mobile-tabs-layout">
+        <div className="mobile-tab-bar">
+          <button
+            className={`mobile-tab-button${activeTab === 'home' ? ' mobile-tab-button-active' : ''}`}
+            onClick={() => setActiveTab('home')}
+          >
+            Home
+          </button>
+          <button
+            className={`mobile-tab-button${activeTab === 'library' ? ' mobile-tab-button-active' : ''}`}
+            onClick={() => setActiveTab('library')}
+          >
+            Library
+          </button>
+          <button
+            className={`mobile-tab-button${activeTab === 'twitch' ? ' mobile-tab-button-active' : ''}`}
+            onClick={() => setActiveTab('twitch')}
+          >
+            Twitch
+          </button>
+        </div>
+
+        {activeTab === 'home' && (
+          <div className="mobile-tab-panel">
+            <section className="favourites-section">
+              <h2 className="section-heading">Favourites</h2>
+              {favouritesContent}
+            </section>
+            <ComingSoonPanel />
+            <WishlistRankingPanel />
+          </div>
+        )}
+
+        {activeTab === 'library' && (
+          <div className="mobile-tab-panel">
+            {librarySortControls}
+            <section className="library-section">
+              <h2 className="section-heading">Library</h2>
+              {libraryContent}
+            </section>
+          </div>
+        )}
+
+        {activeTab === 'twitch' && (
+          <div className="mobile-tab-panel">
+            <NowStreamingPanel games={favouriteGames} />
+            <TrendingStreamsPanel />
+          </div>
+        )}
+      </div>
+    )
+  }
+
   return (
     <div className="library-page-layout">
       <div className="discovery-sidebar discovery-sidebar-left">
@@ -112,23 +195,7 @@ function LibraryGrid({ enabled }: { enabled: boolean }) {
           <h2 className="section-heading">Favourites</h2>
           {favouritesContent}
         </section>
-        <input
-          type="text"
-          className="library-search"
-          placeholder="Search your library..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-        />
-        <select
-          className="library-sort"
-          value={sortOrder}
-          onChange={(e) => setSortOrder(e.target.value as SortOrder)}
-        >
-          <option value="lastPlayed">Last Played</option>
-          <option value="mostPlaytime">Most Playtime</option>
-          <option value="az">A-Z</option>
-          <option value="za">Z-A</option>
-        </select>
+        {librarySortControls}
         <section className="library-section">
           <h2 className="section-heading">Library</h2>
           {libraryContent}
